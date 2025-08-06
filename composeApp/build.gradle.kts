@@ -116,6 +116,11 @@ android {
 dependencies {
     implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
+
+    implementation(platform("io.github.jan-tennert.supabase:bom:v3.2.2"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+//    implementation("io.github.jan-tennert.supabase:auth-kt")
+//    implementation("io.github.jan-tennert.supabase:realtime-kt")
 }
 
 compose.desktop {
