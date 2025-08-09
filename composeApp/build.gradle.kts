@@ -70,6 +70,14 @@ kotlin {
 
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
+
+            implementation(platform("io.github.jan-tennert.supabase:bom:2.6.0")) // or latest stable 2.x version            implementation("io.github.jan-tennert.supabase:supabase-kt")
+            implementation("io.github.jan-tennert.supabase:postgrest-kt")
+
+
+            implementation(libs.bundles.supabase)
+            implementation(libs.supabase.client)
+            implementation(libs.supabase.postgrest)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -116,11 +124,6 @@ android {
 dependencies {
     implementation(libs.androidx.material3.android)
     debugImplementation(compose.uiTooling)
-
-    implementation(platform("io.github.jan-tennert.supabase:bom:v3.2.2"))
-    implementation("io.github.jan-tennert.supabase:postgrest-kt")
-//    implementation("io.github.jan-tennert.supabase:auth-kt")
-//    implementation("io.github.jan-tennert.supabase:realtime-kt")
 }
 
 compose.desktop {
