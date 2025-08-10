@@ -43,7 +43,6 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
@@ -52,6 +51,7 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
@@ -68,17 +68,12 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.core)
 
-            implementation(libs.bundles.ktor)
-            implementation(libs.bundles.coil)
-
-            implementation(platform("io.github.jan-tennert.supabase:bom:2.6.0")) // or latest stable 2.x version            implementation("io.github.jan-tennert.supabase:supabase-kt")
-            implementation("io.github.jan-tennert.supabase:postgrest-kt")
-
+            implementation(libs.bundles.ktor)   // bundles all ktor dependencies
+            implementation(libs.bundles.coil)   // bundles all coil dependencies
 
             implementation(libs.bundles.supabase)
-            implementation(libs.supabase.client)
-            implementation(libs.supabase.postgrest)
         }
+
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)

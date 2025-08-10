@@ -70,7 +70,6 @@ fun LoginScreen(
 ) {
     state.error?.let {
         GlobalToast.state.show(it)
-
     }
 
     Box(

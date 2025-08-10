@@ -17,5 +17,8 @@ sealed interface NavGraphA {
 
     @Serializable
     data object practice : NavGraphA
+
+    @Serializable
+    data object HomeScreen : NavGraphA
 }
 
