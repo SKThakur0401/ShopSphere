@@ -75,7 +75,7 @@ androidx-material3-android = { group = "androidx.compose.material3", name = "mat
 # ✅ MODERN WAY: Explicit Supabase dependencies with versions
 supabase-client = { module = "io.github.jan-tennert.supabase:supabase-kt", version.ref = "supabase" }
 supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabase" }
-supabase-auth = { module = "io.github.jan-tennert.supabase:auth-kt", version.ref = "supabase" }
+supabase-gotrue = { module = "io.github.jan-tennert.supabase:gotrue-kt", version.ref = "supabase" }
 supabase-realtime = { module = "io.github.jan-tennert.supabase:realtime-kt", version.ref = "supabase" }
 supabase-storage = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "supabase" }
 
@@ -114,6 +114,9 @@ coil = [
 # ✅ Create Supabase bundle for easy management
 supabase = [
     "supabase-client",
-    "supabase-postgrest"
+    "supabase-postgrest",
+    "supabase-gotrue",
+    "supabase-realtime",
+    "supabase-storage"
 ]
 

@@ -46,6 +46,10 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
+
+            // implementation("androidx.browser:browser:1.8.0") // Not reqd now,
+            // Used when using OAuth or authentication happening using Google or
+            // github or some third party
         }
         commonMain.dependencies {
             implementation(compose.runtime)
