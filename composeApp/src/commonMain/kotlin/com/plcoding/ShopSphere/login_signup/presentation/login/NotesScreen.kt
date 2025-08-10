@@ -32,29 +32,58 @@ import com.plcoding.ShopSphere.app.accentColor
 import com.plcoding.ShopSphere.app.darkText
 import com.plcoding.ShopSphere.app.primaryColor
 import com.plcoding.ShopSphere.app.secondaryColor
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
-val supabase = createSupabaseClient(
-    supabaseUrl = "https://jntbkxrqyjefnoerkmeu.supabase.co",     // ✅ your actual project URL
-    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpudGJreHJxeWplZm5vZXJrbWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MDc0NDksImV4cCI6MjA2OTk4MzQ0OX0.-sIlgATXTKGgGJfPWJtt512vv5-J06sq9hbHSSh9Ze4",               // ✅ your actual anon/public API key
-){
+
+//val supabase = createSupabaseClient(
+//    supabaseUrl = "https://jntbkxrqyjefnoerkmeu.supabase.co",     // ✅ your actual project URL
+//    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpudGJreHJxeWplZm5vZXJrbWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MDc0NDksImV4cCI6MjA2OTk4MzQ0OX0.-sIlgATXTKGgGJfPWJtt512vv5-J06sq9hbHSSh9Ze4",               // ✅ your actual anon/public API key
+//){
+//    install(Postgrest)
+//}
+
+private const val SUPABASE_URL = "https://jntbkxrqyjefnoerkmeu.supabase.co"
+private const val SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpudGJreHJxeWplZm5vZXJrbWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MDc0NDksImV4cCI6MjA2OTk4MzQ0OX0.-sIlgATXTKGgGJfPWJtt512vv5-J06sq9hbHSSh9Ze4"
+
+val supabase: SupabaseClient = createSupabaseClient(
+    supabaseUrl = SUPABASE_URL,
+    supabaseKey = SUPABASE_KEY
+) {
     install(Postgrest)
 }
+
 
 @Composable
 fun NotesScreen(){
 
-    var noteList by remember {mutableStateOf<List<Notes>>(lsd)}
+    var noteList by remember { mutableStateOf<List<Notes>>(emptyList()) }
+    var error by remember { mutableStateOf<String?>(null) }
 
-//    LaunchedEffect(Unit){
-//        withContext(Dispatchers.IO){
-//            val result = supabase.from("Notes Table").select().decodeList<Notes>()
-//            noteList = result
+    LaunchedEffect(Unit) {
+        try {
+            val result = withContext(Dispatchers.IO) {
+                supabase.from("myNotes")
+                    .select()
+                    .decodeList<Notes>()
+            }
+            noteList = result
+        } catch (e: Exception) {
+            error = e.message
+        }
+    }
+
+//    if (error != null) {
+//        Text("Error: $error")
+//    } else {
+//        noteList.forEach { note ->
+//            Text("${note.id}: ${note.title}")
 //        }
 //    }
 
@@ -106,8 +135,9 @@ fun NotesScreen(){
     }
 }
 
+@Serializable
 data class Notes(
-    val id : Int,
+    val id : Long,
     val title: String,
     val body : String
 )
@@ -128,13 +158,13 @@ fun NoteItem(note : Notes){
             .background(secondaryColor.copy(alpha = 0.4f))
             .fillMaxWidth()
     ) {
-        Row (
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth().background(accentColor)
         ){
             Text(note.title, color = darkText)
-            Text(note.body, color = darkText)
+            Text(note.body, color = darkText.copy(alpha= 0.9f))
         }
     }
 }
