@@ -13,22 +13,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.*
-import androidx.compose.material.Icon
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -38,7 +33,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -47,12 +41,13 @@ import com.plcoding.ShopSphere.app.darkText
 import com.plcoding.ShopSphere.app.lightBackground
 import com.plcoding.ShopSphere.app.primaryColor
 import com.plcoding.ShopSphere.app.secondaryColor
+import com.plcoding.ShopSphere.core.presentation.GlobalToast
+import com.plcoding.ShopSphere.login_signup.presentation.login.components.MyOutlinedTextField
 import org.koin.compose.viewmodel.koinViewModel
-import androidx.compose.material.Icon as Icon
 
 @Composable
 fun RegistrationScreenRoot(
-    viewModel: AuthViewModel = koinViewModel(),
+    viewModel: AuthViewModel,
     navigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit
 ){
@@ -66,8 +61,21 @@ fun RegistrationScreen(
     state: AuthState,
     navigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
-    viewModel: AuthViewModel = koinViewModel()
+    viewModel: AuthViewModel
 ) {
+
+    state.error?.let {
+        LaunchedEffect(it){ // This prevents toast re-appearance coz of recomposition
+            GlobalToast.state.show(it)      // Now this toast will be visible each time u press login
+        }                               // and login fails... HOW??? Because each time u press
+        // login, state.error becomes "NULL" because of Loading state and then it repopulates the
+        // value with "Login Failed" hence there's a change in value and it appears each time
+        // u press login with wrong credential... despite each time the text is same ;)
+    }
+
+    LaunchedEffect(state.isSignedIn){
+        if(state.isSignedIn == true) onRegisterSuccess()
+    }
 
     Box(
         modifier = Modifier
@@ -134,99 +142,42 @@ fun RegistrationScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Name field
-                OutlinedTextField(
+                MyOutlinedTextField(
                     value = state.name,
                     onValueChange = { viewModel.onAction(AuthActions.OnNameChange(it)) },
-                    label = {"Full Name"},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = secondaryColor.copy(alpha = 0.5f),
-                        cursorColor = accentColor
-                    ),
-                    leadingIcon = {
-                        Icon(Icons.Default.Person, contentDescription = "Name")
-                    }
+                    placeholder = "Name",
+                    leadingIcon = Icons.Default.Person
                 )
 
-                // Email field
-                OutlinedTextField(
+                MyOutlinedTextField(
                     value = state.email,
-                    onValueChange = { viewModel.onAction(AuthActions.OnNameChange(it)) },
-                    label = { Text("Email Address") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = secondaryColor.copy(alpha = 0.5f),
-                        cursorColor = accentColor
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(Icons.Default.Email, contentDescription = "Email")
-                    }
+                    onValueChange = { viewModel.onAction(AuthActions.OnEmailChange(it)) },
+                    placeholder = "Email",
+                    leadingIcon = Icons.Default.Email,
+                    keyboardType = KeyboardType.Email
                 )
 
-                // Password field
-                OutlinedTextField(
+                MyOutlinedTextField(
                     value = state.password,
-                    onValueChange = { viewModel.onAction(AuthActions.OnPasswordChange(it))  },
-                    label = { Text("Password") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = secondaryColor.copy(alpha = 0.5f),
-                        cursorColor = accentColor
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Next
-                    ),
-                    visualTransformation = PasswordVisualTransformation(),
-                    leadingIcon = {
-                        Icon(Icons.Default.Lock, contentDescription = "Password")
-                    }
+                    onValueChange = { viewModel.onAction(AuthActions.OnPasswordChange(it)) },
+                    placeholder = "Password",
+                    leadingIcon = Icons.Default.Lock,
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
-                // Confirm Password field
-                OutlinedTextField(
+                MyOutlinedTextField(
                     value = state.confirmPassword,
-                    onValueChange = { viewModel.onAction(AuthActions.OnPasswordChange(it)) },
-                    label = { /*Text(*/"Confirm Password" },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = secondaryColor.copy(alpha = 0.5f),
-                        cursorColor = accentColor
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    ),
-                    visualTransformation = PasswordVisualTransformation(),
-                    leadingIcon = {
-                        Icon(Icons.Default.Lock, contentDescription = "Confirm Password")
-                    }
+                    onValueChange = { viewModel.onAction(AuthActions.OnConfirmPasswordChange(it)) },
+                    placeholder = "Confirm Password",
+                    leadingIcon = Icons.Default.Lock,
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
                 // Register button
                 Button(
-                    onClick = { viewModel.onAction(AuthActions.Submit)},
+                    onClick = { viewModel.onAction(AuthActions.Register)},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

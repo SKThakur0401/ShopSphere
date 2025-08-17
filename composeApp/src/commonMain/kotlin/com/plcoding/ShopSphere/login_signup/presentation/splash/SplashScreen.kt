@@ -8,7 +8,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +24,9 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -33,17 +35,27 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.plcoding.ShopSphere.app.accentColor
 import com.plcoding.ShopSphere.app.darkText
 import com.plcoding.ShopSphere.app.lightBackground
 import com.plcoding.ShopSphere.app.primaryColor
 import com.plcoding.ShopSphere.app.secondaryColor
+import com.plcoding.ShopSphere.core.presentation.GlobalToast
+import com.plcoding.ShopSphere.core.domain.LogUtils
+import com.plcoding.ShopSphere.login_signup.presentation.login.AuthViewModel
 import kotlinx.coroutines.delay
+import org.koin.compose.viewmodel.koinViewModel
 
-
-// SplashScreen.kt
 @Composable
-fun SplashScreen(goToLoginScreen: () -> Unit) {
+fun SplashScreen(
+    authViewModel: AuthViewModel,
+    goToLoginScreen: () -> Unit,
+    goToHomeScreen: () -> Unit) {
+
+    val state by authViewModel.state.collectAsStateWithLifecycle()
+    var hasNavigated by remember { mutableStateOf(false) }
+    var hasCheckedAuth by remember { mutableStateOf(false) }
     val infiniteTransition = rememberInfiniteTransition()
     val scale by infiniteTransition.animateFloat(
         initialValue = 0.8f,
@@ -54,10 +66,36 @@ fun SplashScreen(goToLoginScreen: () -> Unit) {
         )
     )
 
-    LaunchedEffect(Unit) {
-        delay(2500)
-        goToLoginScreen()
+    state.error?.let {
+        LaunchedEffect(it){ // This prevents toast re-appearance coz of recompositn
+            GlobalToast.state.show(it)      // Now this toast will be visible each time u press login
+        }                               // and login fails... HOW??? Because each time u press
     }
+
+    LaunchedEffect(Unit) {
+        if (!hasCheckedAuth) {
+            hasCheckedAuth = true
+            delay(2000)
+            authViewModel.checkSignInStatus()
+        }
+    }
+
+    // Handle navigation based on authentication state
+    LaunchedEffect(state.isSignedIn) {
+        if (!hasNavigated && state.isSignedIn != null) {
+            hasNavigated = true
+            when (state.isSignedIn) {
+                true -> goToHomeScreen()
+                false -> goToLoginScreen()
+                null -> { 
+                    LogUtils.i("SplashScreen: Still loading, not navigating")
+                }
+            }
+        } else {
+            LogUtils.i("SplashScreen: Skipping navigation - hasNavigated: $hasNavigated, isSignedIn: ${state.isSignedIn}")
+        }
+    }
+
 
     Box(
         modifier = Modifier
@@ -117,6 +155,8 @@ fun SplashScreen(goToLoginScreen: () -> Unit) {
                 style = MaterialTheme.typography.body1,
                 color = darkText.copy(alpha = 0.7f)
             )
+            
+
         }
 
         // Loading indicator at bottom
@@ -127,6 +167,8 @@ fun SplashScreen(goToLoginScreen: () -> Unit) {
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 48.dp)
         )
+        
+
     }
 }
 

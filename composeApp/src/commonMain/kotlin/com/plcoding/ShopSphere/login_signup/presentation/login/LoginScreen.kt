@@ -39,13 +39,14 @@ import com.plcoding.ShopSphere.app.lightBackground
 import com.plcoding.ShopSphere.app.primaryColor
 import com.plcoding.ShopSphere.app.secondaryColor
 import com.plcoding.ShopSphere.core.presentation.GlobalToast
+import com.plcoding.ShopSphere.login_signup.presentation.login.components.MyOutlinedTextField
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.material.Icon as Icon
 
 
 @Composable
 fun LoginScreenRoot(
-    viewModel: AuthViewModel = koinViewModel(),
+    viewModel: AuthViewModel,
     navigateToRegister: () -> Unit,
     gotoNotesScreen: () -> Unit,
     onLoginSuccess: () -> Unit
@@ -66,10 +67,19 @@ fun LoginScreen(
     state: AuthState,
     navigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit,
-    viewModel: AuthViewModel = koinViewModel()
+    viewModel: AuthViewModel
 ) {
     state.error?.let {
-        GlobalToast.state.show(it)
+        LaunchedEffect(it){ // This prevents toast re-appearance coz of recompositn
+            GlobalToast.state.show(it)      // Now this toast will be visible each time u press login
+        }                               // and login fails... HOW??? Because each time u press
+        // login, state.error becomes "NULL" bcoz of Loading state and then it repopulates the
+        // value with "Login Failed" hence there's a chnage in value and it appears eacah time
+        // u press login with wrong credential... despite each time the text is same ;)
+    }
+
+    LaunchedEffect(state.isSignedIn){
+        if(state.isSignedIn == true) onLoginSuccess()
     }
 
     Box(
@@ -134,63 +144,26 @@ fun LoginScreen(
                     modifier = Modifier.padding(bottom = 32.dp)
                 )
 
-                // Email field
-                OutlinedTextField(
+                MyOutlinedTextField(
                     value = state.email,
                     onValueChange = { viewModel.onAction(AuthActions.OnEmailChange(it)) },
-//                    label = { Text("Email Address")},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    placeholder = { Text("Email", color = darkText.copy(alpha = 0.7f)) },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = darkText,
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = secondaryColor.copy(alpha = 0.5f),
-                        cursorColor = accentColor
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Email,
-                            tint = accentColor.copy(alpha = 0.9f),
-                            contentDescription = "Email")
-                    }
+                    placeholder = "Email",
+                    leadingIcon = Icons.Default.Email,
+                    keyboardType = KeyboardType.Email
                 )
 
-                // Password field
-                OutlinedTextField(
+                MyOutlinedTextField(
                     value = state.password,
                     onValueChange = { viewModel.onAction(AuthActions.OnPasswordChange(it)) },
-                    placeholder = { Text("Password", color = darkText.copy(alpha = 0.7f)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        textColor = darkText,
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = secondaryColor.copy(alpha = 0.5f),
-                        cursorColor = accentColor
-                    ),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    ),
-                    visualTransformation = PasswordVisualTransformation(),
-                    leadingIcon = {
-                        Icon(imageVector = Icons.Default.Lock,
-                            tint = accentColor.copy(alpha = 0.9f),
-                            contentDescription = "Password")
-                    }
+                    placeholder = "Password",
+                    leadingIcon = Icons.Default.Lock,
+                    keyboardType = KeyboardType.Password,
+                    visualTransformation = PasswordVisualTransformation()
                 )
 
                 // Login button
                 Button(
-                    onClick = { viewModel.onAction(AuthActions.Submit) },
+                    onClick = { viewModel.onAction(AuthActions.Login) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),

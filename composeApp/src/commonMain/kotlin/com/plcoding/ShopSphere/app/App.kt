@@ -10,11 +10,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.plcoding.ShopSphere.core.presentation.ToastHost
+import com.plcoding.ShopSphere.home.presentation.HomeScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import com.plcoding.ShopSphere.login_signup.presentation.login.AuthViewModel
 import com.plcoding.ShopSphere.login_signup.presentation.login.LoginScreenRoot
 import com.plcoding.ShopSphere.login_signup.presentation.login.NotesScreen
 import com.plcoding.ShopSphere.login_signup.presentation.login.RegistrationScreenRoot
+
 import com.plcoding.ShopSphere.login_signup.presentation.splash.SplashScreen
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -31,37 +34,61 @@ fun App() {
             navigation<NavGraphA.Root>(
                 startDestination = NavGraphA.SplashScreen
             ){
-                composable<NavGraphA.SplashScreen> {
+                composable<NavGraphA.SplashScreen> { backStackEntry ->
+                    val viewModel  = backStackEntry.sharedKoinViewModel<AuthViewModel>(navController)
                     val gotoLoginPage ={navController.navigate(NavGraphA.LoginScreen){
                         popUpTo(NavGraphA.SplashScreen){inclusive = true}
                     } }
-                    SplashScreen(gotoLoginPage)
+
+                    val gotoHomeScreen ={navController.navigate(NavGraphA.HomeScreen){
+                        popUpTo(NavGraphA.SplashScreen){inclusive = true}
+                    } }
+
+                    SplashScreen(viewModel, gotoLoginPage, gotoHomeScreen)
                 }
 
-                composable<NavGraphA.LoginScreen> {
-                    val viewModel  = koinViewModel<AuthViewModel>()
+                composable<NavGraphA.LoginScreen> { backStackEntry ->
+                    val viewModel  = backStackEntry.sharedKoinViewModel<AuthViewModel>(navController)
                     val navigateToRegister = {navController.navigate(NavGraphA.RegistrationScreen) }
                     val gotoNotesScreen = {navController.navigate(NavGraphA.practice)}
+                    val onLoginSuccess = {navController.navigate(NavGraphA.HomeScreen){
+                        popUpTo(NavGraphA.LoginScreen){ inclusive = true}
+                    } }
 
-                    LoginScreenRoot(viewModel, navigateToRegister, gotoNotesScreen) {}
+                    LoginScreenRoot(viewModel, navigateToRegister, gotoNotesScreen, onLoginSuccess)
                 }
 
-                composable<NavGraphA.RegistrationScreen> {
-
-                    val viewModel  = koinViewModel<AuthViewModel>()
+                composable<NavGraphA.RegistrationScreen> { backStackEntry ->
+                    val viewModel  = backStackEntry.sharedKoinViewModel<AuthViewModel>(navController)
                     val navigateToLogin : () -> Unit = {navController.navigateUp()}
                     // "navigateUp()" by default returns "Boolean" so this { } wrapping would've
                     // returned () -> Boolean       ---> But we don't want that, so we did
                     // explicit typecasting by mentioning to remove result by explicitly writing
                     // return type as () -> Unit
-                    RegistrationScreenRoot(viewModel, navigateToLogin) {}
+
+                    val onRegistrationSuccess = {navController.navigate(NavGraphA.HomeScreen){
+                        popUpTo(NavGraphA.LoginScreen){ inclusive = true}
+                    } }
+
+                    RegistrationScreenRoot(viewModel, navigateToLogin, onRegistrationSuccess)
                 }
 
                 composable<NavGraphA.practice> {
                     NotesScreen()
                 }
+
+                composable<NavGraphA.HomeScreen>{ backStackEntry ->
+                    val viewModel  = backStackEntry.sharedKoinViewModel<AuthViewModel>(navController)
+                    val onLogout = {navController.navigate(NavGraphA.LoginScreen){
+                        popUpTo(NavGraphA.HomeScreen){inclusive = true }
+                    } }
+                    HomeScreen(onLogout, viewModel)
+                }
             }
         }
+
+        // Global toast overlay
+        ToastHost()
     }
 }
 

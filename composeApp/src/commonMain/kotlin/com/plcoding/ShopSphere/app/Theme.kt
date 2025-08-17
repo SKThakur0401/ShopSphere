@@ -20,6 +20,7 @@ val accentColor = Color(0xFFA0522D)
 val lightBackground = Color(0xFFF5F5DC)
 val darkText = Color(0xFF3E2723)
 
+
 // Theme.kt - Custom theme definition
 @Composable
 fun CarpetBoutiqueTheme(content: @Composable () -> Unit) {
