@@ -10,13 +10,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.plcoding.ShopSphere.core.presentation.LoaderHost
 import com.plcoding.ShopSphere.core.presentation.ToastHost
 import com.plcoding.ShopSphere.home.presentation.HomeScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import com.plcoding.ShopSphere.login_signup.presentation.login.AuthViewModel
 import com.plcoding.ShopSphere.login_signup.presentation.login.LoginScreenRoot
-import com.plcoding.ShopSphere.login_signup.presentation.login.NotesScreen
+import com.plcoding.ShopSphere.login_signup.presentation.notes.NotesScreen
 import com.plcoding.ShopSphere.login_signup.presentation.login.RegistrationScreenRoot
+import com.plcoding.ShopSphere.login_signup.presentation.notes.NotesScreenRoot
+import com.plcoding.ShopSphere.login_signup.presentation.notes.NotesViewModel
 
 import com.plcoding.ShopSphere.login_signup.presentation.splash.SplashScreen
 import org.koin.compose.viewmodel.koinViewModel
@@ -74,7 +77,8 @@ fun App() {
                 }
 
                 composable<NavGraphA.practice> {
-                    NotesScreen()
+                    val viewModel = koinViewModel<NotesViewModel>()
+                    NotesScreenRoot(viewModel)
                 }
 
                 composable<NavGraphA.HomeScreen>{ backStackEntry ->
@@ -87,8 +91,11 @@ fun App() {
             }
         }
 
-        // Global toast overlay
+        // Global toast overlay and global progress bar overlay which we will use app wide :)
+        // The Two things below are overlayed on top of the nav-graph screen which is displayed
+        // so these two below will be displayed on top of those
         ToastHost()
+        LoaderHost()
     }
 }
 

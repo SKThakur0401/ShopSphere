@@ -7,6 +7,7 @@ import com.plcoding.ShopSphere.core.data.HttpClientFactory
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import com.plcoding.ShopSphere.login_signup.presentation.login.AuthViewModel
+import com.plcoding.ShopSphere.login_signup.presentation.notes.NotesViewModel
 
 import com.russhwolf.settings.Settings
 import io.github.jan.supabase.SupabaseClient
@@ -42,6 +43,6 @@ val sharedModule = module {
     }
 
 
-
     viewModelOf(::AuthViewModel)
+    viewModelOf(::NotesViewModel)
 }

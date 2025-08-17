@@ -10,4 +10,16 @@ object Constants {
     const val TOKEN_FOR_PREFS = "This_Token_Is_Used_For_Our_App_Wide_Shared_Pref"
 
     const val AUTH_TOKEN  = "auth_token"
+
+    object TABLE{
+        const val USERS = "users"
+        const val CUSTOMER_STORIES = "customerStories"
+        const val PRODUCTS = "products"
+        const val EXPLORABLES = "explorables"
+    }
+
+    const val MY_NOTES = "myNotes"
+
+
 }
+

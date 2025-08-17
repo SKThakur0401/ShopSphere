@@ -1,7 +1,8 @@
-package com.plcoding.ShopSphere.login_signup.presentation.login
+package com.plcoding.ShopSphere.login_signup.presentation.notes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,74 +19,63 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.plcoding.ShopSphere.app.accentColor
 import com.plcoding.ShopSphere.app.darkText
 import com.plcoding.ShopSphere.app.primaryColor
 import com.plcoding.ShopSphere.app.secondaryColor
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
-import io.github.jan.supabase.postgrest.from
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
+import com.plcoding.ShopSphere.core.presentation.GlobalLoader
+import com.plcoding.ShopSphere.core.presentation.GlobalToast
 import kotlinx.serialization.Serializable
 
 
-//val supabase = createSupabaseClient(
-//    supabaseUrl = "https://jntbkxrqyjefnoerkmeu.supabase.co",     // ✅ your actual project URL
-//    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpudGJreHJxeWplZm5vZXJrbWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MDc0NDksImV4cCI6MjA2OTk4MzQ0OX0.-sIlgATXTKGgGJfPWJtt512vv5-J06sq9hbHSSh9Ze4",               // ✅ your actual anon/public API key
-//){
-//    install(Postgrest)
-//}
+@Composable
+fun NotesScreenRoot(viewModel: NotesViewModel) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-private const val SUPABASE_URL = "https://jntbkxrqyjefnoerkmeu.supabase.co"
-private const val SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpudGJreHJxeWplZm5vZXJrbWV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MDc0NDksImV4cCI6MjA2OTk4MzQ0OX0.-sIlgATXTKGgGJfPWJtt512vv5-J06sq9hbHSSh9Ze4"
+//    LaunchedEffect(Unit){
+//        viewModel.fetchNotes()
+//    }
 
-val supabase: SupabaseClient = createSupabaseClient(
-    supabaseUrl = SUPABASE_URL,
-    supabaseKey = SUPABASE_KEY
-) {
-    install(Postgrest)
+    NotesScreen(state, {text->
+        viewModel.onAction(NotesAction.OnTextChange(text))
+    }, viewModel)
 }
 
 
 @Composable
-fun NotesScreen(){
+fun NotesScreen(state: NoteState, onTextChanged: (text: String) -> Unit, viewModel: NotesViewModel){
 
-    var noteList by remember { mutableStateOf<List<Notes>>(emptyList()) }
-    var error by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(Unit) {
-        try {
-            val result = withContext(Dispatchers.IO) {
-                supabase.from("myNotes")
-                    .select()
-                    .decodeList<Notes>()
-            }
-            noteList = result
-        } catch (e: Exception) {
-            error = e.message
+    state.error?.let {
+        LaunchedEffect(it){
+            GlobalToast.state.show(it)
         }
     }
 
-//    if (error != null) {
-//        Text("Error: $error")
-//    } else {
-//        noteList.forEach { note ->
-//            Text("${note.id}: ${note.title}")
-//        }
-//    }
+    LaunchedEffect(state.isLoading){
+        GlobalLoader.isLoading = state.isLoading
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // show loader only while loading
+        if (state.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        // Your main content goes here
+        // Example:
+        // TextField(value = ..., onValueChange = onTextChanged)
+    }
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -96,18 +86,15 @@ fun NotesScreen(){
             modifier = Modifier.fillMaxWidth().weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(noteList){note->
+            items(state.noteList){note->
                 NoteItem(note)
             }
         }
 
-        var tf by remember { mutableStateOf("") }
-
-        val scope = rememberCoroutineScope()
         Row(modifier = Modifier.padding(20.dp)) {
             OutlinedTextField(
-                value = tf,
-                onValueChange = {tf = it},
+                value = state.title,
+                onValueChange = {onTextChanged(it)},
                 modifier = Modifier
                     .weight(5f)
                     .padding(bottom = 16.dp),
@@ -122,11 +109,7 @@ fun NotesScreen(){
             )
 
             IconButton(
-                onClick = {
-                    val nn = ArrayList(noteList)
-                    nn.add(Notes(69, tf, "ifjei"))
-                    noteList = nn }
-                ,
+                onClick = { viewModel.onAction(NotesAction.OnSubmitClick) },
                 modifier = Modifier.weight(1f)
             ){
                 Icon(imageVector = Icons.Default.Star, contentDescription = null, tint = accentColor)
@@ -137,18 +120,11 @@ fun NotesScreen(){
 
 @Serializable
 data class Notes(
-    val id : Long,
-    val title: String,
-    val body : String
+    val id : Long? = null,
+    val title: String = "",
+    val body : String = ""
 )
 
-val lsd = arrayListOf(
-    Notes(1, "ifej", "My description"),
-    Notes(2, "ifej", "My description"),
-    Notes(3, "ifej", "My description"),
-    Notes(4, "ifej", "My description"),
-    Notes(5, "ifej", "My description"),
-)
 
 @Composable
 fun NoteItem(note : Notes){
