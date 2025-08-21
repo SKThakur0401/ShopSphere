@@ -5,16 +5,24 @@ import androidx.lifecycle.viewModelScope
 import com.plcoding.ShopSphere.core.data.Constants.MY_NOTES
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.realtime.PostgresAction
+import io.github.jan.supabase.realtime.RealtimeChannel
 import io.github.jan.supabase.realtime.channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import io.github.jan.supabase.realtime.channel
+import io.github.jan.supabase.realtime.postgresChangeFlow
 import io.github.jan.supabase.realtime.realtime
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 
 class NotesViewModel(private val supabase : SupabaseClient): ViewModel() {
 
@@ -51,13 +59,13 @@ class NotesViewModel(private val supabase : SupabaseClient): ViewModel() {
         }
     }
 
-    fun showError(error: String){
+    private fun showError(error: String){
         _state.update {
             it.copy(error = error, isLoading = false)
         }
     }
 
-    fun fetchNotes(){
+    private fun fetchNotes(){
         viewModelScope.launch {
             try {
                 val notes = supabase.from(MY_NOTES).select().decodeList<Notes>()
@@ -80,43 +88,47 @@ class NotesViewModel(private val supabase : SupabaseClient): ViewModel() {
     }
 
     init {
-        startPolling()
+//        startPolling()        // fetching data every 3 sec, but realtime channel is better
+        fetchNotes()
+        observeNotes()
     }
 
-/*
+
     private var realtimeChannel: RealtimeChannel? = null
 
-
-    // CURRENT WORKING APPROACH - Method 1: Using postgresListenFlow
     private fun observeNotes() {
         viewModelScope.launch {
             try {
-                // Create and join a channel
-                realtimeChannel = supabase.realtime.createChannel("notes-channel")
+                // Create channel first
+                realtimeChannel = supabase.channel("notes-channel")
 
-                // Listen to postgres changes using Flow
-                realtimeChannel?.postgresListenFlow(
-                    schema = "public",
-                    table = MY_NOTES
-                )?.collect { action ->
+                // Set up the postgres change flow BEFORE subscribing
+                val changeFlow = realtimeChannel?.postgresChangeFlow<PostgresAction>(
+                    schema = "public"
+                ) {
+                    table = MY_NOTES  // Your table name
+                }
+
+                // Subscribe to the channel first
+                realtimeChannel?.subscribe(blockUntilSubscribed = true)
+
+                // Then collect the flow
+                changeFlow?.onEach { action ->
                     when (action) {
                         is PostgresAction.Insert -> {
                             handleInsert(action.record)
                         }
                         is PostgresAction.Update -> {
-//                            handleUpdate(action.record)
+                            handleUpdate(action.record, action.oldRecord)
                         }
                         is PostgresAction.Delete -> {
-//                            handleDelete(action.oldRecord)
+                            handleDelete(action.oldRecord)
                         }
                         else -> {
                             // Handle other actions if needed
                         }
                     }
-                }
-
-                // Subscribe to the channel
-                realtimeChannel?.subscribe()
+                }?.launchIn(viewModelScope)
 
             } catch (ex: Exception) {
                 showError("NotesVM Subscription Error: ${ex.message}")
@@ -124,18 +136,11 @@ class NotesViewModel(private val supabase : SupabaseClient): ViewModel() {
         }
     }
 
+
     private fun handleInsert(record: JsonObject) {
         try {
-            // Parse the record manually or use your preferred JSON parsing
-            val id = record["id"]?.jsonPrimitive?.content ?: return
-            val title = record["title"]?.jsonPrimitive?.content ?: ""
-            val body = record["body"]?.jsonPrimitive?.content
-
-            val newNote = Notes(
-                id = id.toLong(),
-                title = title,
-                body = body ?: ""
-            )
+            val json = Json { ignoreUnknownKeys = true }
+            val newNote = json.decodeFromJsonElement<Notes>(record)
 
             _state.update { old ->
                 old.copy(noteList = old.noteList + newNote)
@@ -144,23 +149,11 @@ class NotesViewModel(private val supabase : SupabaseClient): ViewModel() {
             showError("Error handling insert: ${e.message}")
         }
     }
-*/
 
-/*
-    private fun handleUpdate(record: JsonObject) {
+    private fun handleUpdate(newRecord: JsonObject, oldRecord: JsonObject?) {
         try {
-            val id = record["id"]?.jsonPrimitive?.content ?: return
-            val title = record["title"]?.jsonPrimitive?.content ?: ""
-            val content = record["content"]?.jsonPrimitive?.content ?: ""
-            val createdAt = record["created_at"]?.jsonPrimitive?.content
-            val userId = record["user_id"]?.jsonPrimitive?.content
-
-            val updatedNote = Notes(
-                id = id,
-                title = title,
-                created_at = createdAt,
-                user_id = userId
-            )
+            val json = Json { ignoreUnknownKeys = true }
+            val updatedNote = json.decodeFromJsonElement<Notes>(newRecord)
 
             _state.update { old ->
                 val updatedList = old.noteList.map { note ->
@@ -173,19 +166,18 @@ class NotesViewModel(private val supabase : SupabaseClient): ViewModel() {
         }
     }
 
-    private fun handleDelete(record: JsonObject) {
+    private fun handleDelete(oldRecord: JsonObject?) {
         try {
-            val id = record["id"]?.jsonPrimitive?.content ?: return
-
-            _state.update { old ->
-                val filteredList = old.noteList.filter { it.id != id }
-                old.copy(noteList = filteredList)
+            oldRecord?.let { record ->
+                val id = record["id"]?.jsonPrimitive?.long ?: return
+                _state.update { old ->
+                    val filteredList = old.noteList.filter { it.id != id }
+                    old.copy(noteList = filteredList)
+                }
             }
         } catch (e: Exception) {
             showError("Error handling delete: ${e.message}")
         }
     }
-*/
-
 }
 

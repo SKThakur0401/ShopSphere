@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.plcoding.ShopSphere.core.presentation.LoaderHost
 import com.plcoding.ShopSphere.core.presentation.ToastHost
 import com.plcoding.ShopSphere.home.presentation.HomeScreen
+import com.plcoding.ShopSphere.home.presentation.HomeScreenRoot
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import com.plcoding.ShopSphere.login_signup.presentation.login.AuthViewModel
 import com.plcoding.ShopSphere.login_signup.presentation.login.LoginScreenRoot
@@ -86,7 +87,7 @@ fun App() {
                     val onLogout = {navController.navigate(NavGraphA.LoginScreen){
                         popUpTo(NavGraphA.HomeScreen){inclusive = true }
                     } }
-                    HomeScreen(onLogout, viewModel)
+                    HomeScreenRoot(onLogout, viewModel)
                 }
             }
         }

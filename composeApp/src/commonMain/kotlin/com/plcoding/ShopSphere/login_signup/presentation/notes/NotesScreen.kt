@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -33,16 +34,13 @@ import com.plcoding.ShopSphere.app.primaryColor
 import com.plcoding.ShopSphere.app.secondaryColor
 import com.plcoding.ShopSphere.core.presentation.GlobalLoader
 import com.plcoding.ShopSphere.core.presentation.GlobalToast
+import com.plcoding.ShopSphere.login_signup.presentation.notes.Components.NoteItem
 import kotlinx.serialization.Serializable
 
 
 @Composable
 fun NotesScreenRoot(viewModel: NotesViewModel) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-//    LaunchedEffect(Unit){
-//        viewModel.fetchNotes()
-//    }
 
     NotesScreen(state, {text->
         viewModel.onAction(NotesAction.OnTextChange(text))
@@ -63,25 +61,25 @@ fun NotesScreen(state: NoteState, onTextChanged: (text: String) -> Unit, viewMod
         GlobalLoader.isLoading = state.isLoading
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        // show loader only while loading
-        if (state.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
-        // Your main content goes here
-        // Example:
-        // TextField(value = ..., onValueChange = onTextChanged)
-    }
-
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+
+        Row(
+            modifier = Modifier.fillMaxWidth().background(accentColor).padding(20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Notes Screen",
+                style = MaterialTheme.typography.h2,
+                color = darkText
+            )
+        }
+
         LazyColumn(
             modifier = Modifier.fillMaxWidth().weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -126,21 +124,3 @@ data class Notes(
 )
 
 
-@Composable
-fun NoteItem(note : Notes){
-    Card(
-        modifier = Modifier
-            .padding(10.dp)
-            .background(secondaryColor.copy(alpha = 0.4f))
-            .fillMaxWidth()
-    ) {
-        Column (
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth().background(accentColor)
-        ){
-            Text(note.title, color = darkText)
-            Text(note.body, color = darkText.copy(alpha= 0.9f))
-        }
-    }
-}
