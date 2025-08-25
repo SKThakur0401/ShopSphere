@@ -16,8 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -65,9 +63,9 @@ fun HomeScreen(logoutUser : () -> Unit){
         ) {
 
             item {
-                val windowInfo = LocalWindowInfo.current
-                val screenHeight = with(LocalDensity.current) { windowInfo.containerSize.height.toDp() }
-                Box(modifier = Modifier.height(screenHeight)) { HeroSection(modifier = Modifier.fillMaxSize()) }
+                Box(modifier = Modifier.height(830.dp)) {
+                    HeroSection(modifier = Modifier.fillMaxSize()) 
+                }
             }
 
             item {

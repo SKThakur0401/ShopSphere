@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.plcoding.ShopSphere.core.data.Constants
 
 @Composable
 fun ARCarpetPreviewSection() {
@@ -42,220 +44,230 @@ fun ARCarpetPreviewSection() {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                brush = Brush.horizontalGradient(
+                brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFF5F2E8),
-                        Color(0xFFF5F2E8),
-                        Color(0xFFD4B896),
-                        Color(0xFFD4B896)
+                        Color(0xFF2D1810),
+                        Color(0xFF1A1A1A)
                     )
                 )
             )
-            .padding(horizontal = 24.dp, vertical = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 20.dp, vertical = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        // Hero Section
-        Text(
-            text = "See It In Your Space",
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.Normal,
-                fontSize = 32.sp,
-                lineHeight = 38.sp,
-                letterSpacing = 0.5.sp
-            ),
-            color = Color(0xFF3A2F26),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-        
-        Text(
-            text = "Our augmented reality feature allows you to visualize how our carpets will look in your own home before making a purchase.",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                lineHeight = 24.sp
-            ),
-            color = Color(0xFF6B5B52),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 48.dp)
-        )
-        
-        // Features Section
+        // Header Section
         Column(
-            verticalArrangement = Arrangement.spacedBy(32.dp),
-            modifier = Modifier.padding(bottom = 48.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            FeatureItem(
-                iconText = "📷",
-                title = "Easy to Use",
-                description = "Simply point your smartphone camera at your floor space to preview carpets."
+            // Badge
+            Box(
+                modifier = Modifier
+                    .background(
+                        Color(0xFFB8860B).copy(alpha = 0.2f),
+                        RoundedCornerShape(20.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    text = "AR TECHNOLOGY",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        letterSpacing = 1.5.sp
+                    ),
+                    color = Color(0xFFB8860B)
+                )
+            }
+            
+            // Title
+            Text(
+                text = "See It In Your Space",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 32.sp,
+                    lineHeight = 38.sp
+                ),
+                color = Color.White,
+                textAlign = TextAlign.Center
             )
             
-            FeatureItem(
-                iconText = "📏",
-                title = "Accurate Sizing",
-                description = "Adjust dimensions to ensure perfect fit for your room."
+            // Description
+            Text(
+                text = "Experience the future of carpet shopping with our AR technology. Visualize any carpet in your home with perfect accuracy.",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 16.sp,
+                    lineHeight = 24.sp
+                ),
+                color = Color.White.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
-            
-            FeatureItem(
-                iconText = "🎨",
-                title = "Color Matching",
-                description = "See how different colors complement your existing decor."
+        }
+
+        // AR Preview Image
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(280.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 8.dp
+            )
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AsyncImage(
+                    model = Constants.IMG_URL.FAUX_SILK_CARPET,
+                    contentDescription = "AR Preview",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(280.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                
+                // AR Live Badge
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(16.dp)
+                        .background(
+                            Color.Black.copy(alpha = 0.8f),
+                            RoundedCornerShape(20.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(Color(0xFFFF6B6B), CircleShape)
+                        )
+                        Text(
+                            text = "AR LIVE",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
+                            ),
+                            color = Color.White
+                        )
+                    }
+                }
+                
+                // Size Indicator
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                        .background(
+                            Color.Black.copy(alpha = 0.8f),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = "8' × 10'",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color.White
+                    )
+                }
+            }
+        }
+        
+        // Features Row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            SimpleFeatureItem(
+                icon = "🎯",
+                title = "Precise Placement"
+            )
+            SimpleFeatureItem(
+                icon = "📐", 
+                title = "True to Size"
+            )
+            SimpleFeatureItem(
+                icon = "💡",
+                title = "Real Lighting"
             )
         }
         
         // CTA Button
         Button(
-            onClick = { /* TODO: Implement AR preview functionality */ },
+            onClick = { /* Launch AR */ },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp),
+                .height(56.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFA0603B)
+                containerColor = Color(0xFFB8860B)
             ),
-            shape = RoundedCornerShape(24.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                horizontal = 32.dp,
-                vertical = 16.dp
-            )
+            shape = RoundedCornerShape(12.dp)
         ) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "TRY AR PREVIEW",
+                text = "Try AR Experience",
                 style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    letterSpacing = 1.sp
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
                 ),
-                color = Color(0xFFF5F2E8)
+                color = Color.White
             )
         }
-        
-        // Product Preview Card
-        ProductPreviewCard()
     }
 }
 
 @Composable
-private fun FeatureItem(
-    iconText: String,
-    title: String,
-    description: String
+private fun SimpleFeatureItem(
+    icon: String,
+    title: String
 ) {
-    Row(
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Icon Container
+        // Icon
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .background(
-                    color = Color(0xFFA0603B),
-                    shape = CircleShape
+                    Color.White.copy(alpha = 0.1f),
+                    CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = iconText,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                ),
-                color = Color(0xFFF5F2E8)
+                text = icon,
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.White
             )
         }
         
-        // Content
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                ),
-                color = Color(0xFF3A2F26),
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 14.sp,
-                    lineHeight = 21.sp
-                ),
-                color = Color(0xFF6B5B52)
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProductPreviewCard() {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 8.dp
+        // Title
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp
+            ),
+            color = Color.White,
+            textAlign = TextAlign.Center
         )
-    ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            // Product Image
-            AsyncImage(
-                model = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/chair_explorable_img.png",
-                contentDescription = "Persian Medallion in Modern Living Room",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                contentScale = ContentScale.Crop
-            )
-            
-            // Gradient Overlay
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.7f)
-                            )
-                        )
-                    )
-            )
-            
-            // Product Info Overlay
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Persian Medallion in Modern Living Room",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp
-                    ),
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                
-                Text(
-                    text = "8' x 10' Hand-knotted Wool",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp
-                    ),
-                    color = Color.White.copy(alpha = 0.9f)
-                )
-            }
-        }
     }
 }

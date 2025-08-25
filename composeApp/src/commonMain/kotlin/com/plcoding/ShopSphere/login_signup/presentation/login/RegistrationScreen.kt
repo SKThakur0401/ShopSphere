@@ -1,41 +1,38 @@
 package com.plcoding.ShopSphere.login_signup.presentation.login
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
-
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.IconButton
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.plcoding.ShopSphere.app.accentColor
 import com.plcoding.ShopSphere.app.darkText
 import com.plcoding.ShopSphere.app.lightBackground
@@ -44,6 +41,7 @@ import com.plcoding.ShopSphere.app.secondaryColor
 import com.plcoding.ShopSphere.core.presentation.GlobalToast
 import com.plcoding.ShopSphere.login_signup.presentation.login.components.MyOutlinedTextField
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.*
 
 @Composable
 fun RegistrationScreenRoot(
@@ -76,159 +74,475 @@ fun RegistrationScreen(
     LaunchedEffect(state.isSignedIn){
         if(state.isSignedIn == true) onRegisterSuccess()
     }
+    
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    val infiniteTransition = rememberInfiniteTransition()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(lightBackground)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF1A0F0A),
+                        Color(0xFF2D1810),
+                        Color(0xFF1A0F0A)
+                    )
+                )
+            )
     ) {
-        // Animated background pattern
-        val infiniteTransition = rememberInfiniteTransition()
-        val translateX by infiniteTransition.animateFloat(
+        // Animated wave pattern background
+        val waveAnimation by infiniteTransition.animateFloat(
             initialValue = 0f,
-            targetValue = 100f,
+            targetValue = 360f,
             animationSpec = infiniteRepeatable(
-                animation = tween(20000, easing = LinearEasing),
+                animation = tween(10000, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart
             )
         )
 
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.15f)
+        ) {
             val width = size.width
             val height = size.height
-            val tileSize = 80.dp.toPx()
-
-            for (x in -1..(width / tileSize).toInt() + 1) {
-                for (y in 0..(height / tileSize).toInt()) {
-                    val offsetX = (x * tileSize) + (translateX % tileSize)
-                    val offsetY = y * tileSize
-
-                    val color = when ((x + y) % 3) {
-                        0 -> primaryColor.copy(alpha = 0.05f)
-                        1 -> secondaryColor.copy(alpha = 0.05f)
-                        else -> accentColor.copy(alpha = 0.05f)
-                    }
-
-                    drawRect(
-                        color = color,
-                        topLeft = Offset(offsetX, offsetY),
-                        size = Size(tileSize, tileSize)
-                    )
-                }
+            val waveHeight = 100f
+            val waveLength = width / 3
+            
+            val path = Path()
+            path.moveTo(0f, height / 2)
+            
+            for (x in 0..width.toInt() step 10) {
+                val y = height / 2 + waveHeight * sin((x / waveLength + waveAnimation / 180) * PI).toFloat()
+                path.lineTo(x.toFloat(), y)
             }
+            
+            path.lineTo(width, height)
+            path.lineTo(0f, height)
+            path.close()
+            
+            drawPath(
+                path = path,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFB8860B).copy(alpha = 0.3f),
+                        Color.Transparent
+                    )
+                )
+            )
+            
+            // Second wave
+            val path2 = Path()
+            path2.moveTo(0f, height / 2 + 50)
+            
+            for (x in 0..width.toInt() step 10) {
+                val y = height / 2 + 50 + waveHeight * sin((x / waveLength + waveAnimation / 180 + 90) * PI).toFloat()
+                path2.lineTo(x.toFloat(), y)
+            }
+            
+            path2.lineTo(width, height)
+            path2.lineTo(0f, height)
+            path2.close()
+            
+            drawPath(
+                path = path2,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFD4A574).copy(alpha = 0.2f),
+                        Color.Transparent
+                    )
+                )
+            )
         }
 
-        // Main registration card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp)
-                .align(Alignment.Center)
-                .heightIn(min = 500.dp)
-                .shadow(16.dp, shape = RoundedCornerShape(24.dp)),
-            shape = RoundedCornerShape(24.dp),
-            elevation = 8.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(32.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Create Account",
-                    style = MaterialTheme.typography.h2,
-                    color = darkText,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                MyOutlinedTextField(
-                    value = state.name,
-                    onValueChange = { viewModel.onAction(AuthActions.OnNameChange(it)) },
-                    placeholder = "Name",
-                    leadingIcon = Icons.Default.Person
-                )
-
-                MyOutlinedTextField(
-                    value = state.email,
-                    onValueChange = { viewModel.onAction(AuthActions.OnEmailChange(it)) },
-                    placeholder = "Email",
-                    leadingIcon = Icons.Default.Email,
-                    keyboardType = KeyboardType.Email
-                )
-
-                MyOutlinedTextField(
-                    value = state.password,
-                    onValueChange = { viewModel.onAction(AuthActions.OnPasswordChange(it)) },
-                    placeholder = "Password",
-                    leadingIcon = Icons.Default.Lock,
-                    keyboardType = KeyboardType.Password,
-                    visualTransformation = PasswordVisualTransformation()
-                )
-
-                MyOutlinedTextField(
-                    value = state.confirmPassword,
-                    onValueChange = { viewModel.onAction(AuthActions.OnConfirmPasswordChange(it)) },
-                    placeholder = "Confirm Password",
-                    leadingIcon = Icons.Default.Lock,
-                    keyboardType = KeyboardType.Password,
-                    visualTransformation = PasswordVisualTransformation()
-                )
-
-                // Register button
-                Button(
-                    onClick = { viewModel.onAction(AuthActions.Register)},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = accentColor,
-                        contentColor = Color.White
-                    ),
-                    shape = MaterialTheme.shapes.large,
-                    enabled = state.isLoading.not()
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        Text("Create Account", style = MaterialTheme.typography.button)
-                    }
-                }
-
-                // Login option
-                TextButton(
-                    onClick = navigateToLogin,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 24.dp)
-                ) {
-                    Text(
-                        text = "Already have an account? Sign In",
-                        color = primaryColor,
-                        style = MaterialTheme.typography.body1
-                    )
-                }
-            }
-        }
-
-        // Decorative top element
+        // Floating glass card with enhanced design
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .height(80.dp)
+                .fillMaxWidth(0.9f)
+                .align(Alignment.Center)
+                .clip(RoundedCornerShape(32.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            primaryColor.copy(alpha = 0.2f),
-                            Color.Transparent
+                            Color.White.copy(alpha = 0.15f),
+                            Color.White.copy(alpha = 0.05f)
                         )
                     )
                 )
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Progress indicators
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(3) { index ->
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(
+                                    if (index == 0) Color(0xFFB8860B) else Color.White.copy(alpha = 0.3f),
+                                    CircleShape
+                                )
+                        )
+                        if (index < 2) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                    }
+                }
+                
+                // Welcome text
+                Text(
+                    text = "Create Account",
+                    style = MaterialTheme.typography.h2.copy(
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+                
+                Text(
+                    text = "Join our exclusive carpet community",
+                    style = MaterialTheme.typography.body1,
+                    color = Color.White.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    textAlign = TextAlign.Center
+                )
+
+                // Name field
+                OutlinedTextField(
+                    value = state.name,
+                    onValueChange = { viewModel.onAction(AuthActions.OnNameChange(it)) },
+                    label = { Text("Full Name", color = Color.White.copy(alpha = 0.7f)) },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Person,
+                            contentDescription = "Name",
+                            tint = Color(0xFFB8860B)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = Color.White,
+                        cursorColor = Color(0xFFB8860B),
+                        focusedBorderColor = Color(0xFFB8860B),
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                        focusedLabelColor = Color(0xFFB8860B),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.5f)
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = true
+                )
+                
+                // Email field
+                OutlinedTextField(
+                    value = state.email,
+                    onValueChange = { viewModel.onAction(AuthActions.OnEmailChange(it)) },
+                    label = { Text("Email Address", color = Color.White.copy(alpha = 0.7f)) },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Email,
+                            contentDescription = "Email",
+                            tint = Color(0xFFB8860B)
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = Color.White,
+                        cursorColor = Color(0xFFB8860B),
+                        focusedBorderColor = Color(0xFFB8860B),
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                        focusedLabelColor = Color(0xFFB8860B),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.5f)
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = true
+                )
+                
+                // Password field
+                OutlinedTextField(
+                    value = state.password,
+                    onValueChange = { viewModel.onAction(AuthActions.OnPasswordChange(it)) },
+                    label = { Text("Password", color = Color.White.copy(alpha = 0.7f)) },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Lock,
+                            contentDescription = "Password",
+                            tint = Color(0xFFB8860B)
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { passwordVisible = !passwordVisible }
+                        ) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Default.Star else Icons.Default.Lock,
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                tint = Color.White.copy(alpha = 0.7f)
+                            )
+                        }
+                    },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = Color.White,
+                        cursorColor = Color(0xFFB8860B),
+                        focusedBorderColor = Color(0xFFB8860B),
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                        focusedLabelColor = Color(0xFFB8860B),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.5f)
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Next
+                    ),
+                    singleLine = true
+                )
+
+                // Confirm password field
+                OutlinedTextField(
+                    value = state.confirmPassword,
+                    onValueChange = { viewModel.onAction(AuthActions.OnConfirmPasswordChange(it)) },
+                    label = { Text("Confirm Password", color = Color.White.copy(alpha = 0.7f)) },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Lock,
+                            contentDescription = "Confirm Password",
+                            tint = Color(0xFFB8860B)
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { confirmPasswordVisible = !confirmPasswordVisible }
+                        ) {
+                            Icon(
+                                imageVector = if (confirmPasswordVisible) Icons.Default.Star else Icons.Default.Lock,
+                                contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
+                                tint = Color.White.copy(alpha = 0.7f)
+                            )
+                        }
+                    },
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = Color.White,
+                        cursorColor = Color(0xFFB8860B),
+                        focusedBorderColor = Color(0xFFB8860B),
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
+                        focusedLabelColor = Color(0xFFB8860B),
+                        unfocusedLabelColor = Color.White.copy(alpha = 0.5f)
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
+                    singleLine = true
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Animated register button
+                val buttonAnimation by animateFloatAsState(
+                    targetValue = if (state.isLoading) 0.95f else 1f,
+                    animationSpec = spring(dampingRatio = 0.8f)
+                )
+                
+                Button(
+                    onClick = { viewModel.onAction(AuthActions.Register) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .scale(buttonAnimation),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color(0xFFB8860B)
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    enabled = state.isLoading.not()
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (state.isLoading) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            strokeWidth = 2.dp,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    "Creating Account...",
+                                    style = MaterialTheme.typography.button,
+                                    color = Color.White
+                                )
+                            }
+                    } else {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.PersonAdd,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Create Account",
+                                    style = MaterialTheme.typography.button.copy(
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Already have account section
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Already have an account?",
+                        style = MaterialTheme.typography.body2,
+                        color = Color.White.copy(alpha = 0.6f)
+                    )
+                    
+                    TextButton(
+                        onClick = navigateToLogin
+                    ) {
+                        Text(
+                            text = "Sign In",
+                            color = Color(0xFFD4A574),
+                            style = MaterialTheme.typography.button.copy(
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Floating ornamental elements
+        val floatAnimation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(3000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            )
         )
+        
+        // Top right ornament
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 50.dp, y = (-50).dp)
+                .size(150.dp)
+                .alpha(0.3f)
+                .rotate(floatAnimation * 360f)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFFB8860B),
+                            Color.Transparent
+                        )
+                    ),
+                    radius = size.minDimension / 2
+                )
+                
+                // Draw ornamental pattern
+                val center = Offset(size.width / 2, size.height / 2)
+                repeat(8) { index ->
+                    val angle = index * 45f * PI / 180
+                    drawLine(
+                        color = Color(0xFFD4A574).copy(alpha = 0.5f),
+                        start = center,
+                        end = Offset(
+                            (center.x + 60 * cos(angle)).toFloat(),
+                            (center.y + 60 * sin(angle)).toFloat()
+                        ),
+                        strokeWidth = 2.dp.toPx()
+                    )
+                }
+            }
+        }
+        
+        // Bottom left ornament
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .offset(x = (-30).dp, y = 80.dp)
+                .size(120.dp)
+                .alpha(0.2f)
+                .rotate(-floatAnimation * 180f)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val path = Path()
+                val center = Offset(size.width / 2, size.height / 2)
+                val radius = 50f
+                
+                // Draw star pattern
+                repeat(6) { index ->
+                    val angle = index * 60f * PI / 180
+                    val x = center.x + radius * cos(angle).toFloat()
+                    val y = center.y + radius * sin(angle).toFloat()
+                    
+                    if (index == 0) {
+                        path.moveTo(x, y)
+                    } else {
+                        path.lineTo(x, y)
+                    }
+                }
+                path.close()
+                
+                drawPath(
+                    path = path,
+                    color = Color(0xFFB8860B).copy(alpha = 0.3f),
+                    style = Stroke(width = 2.dp.toPx())
+                )
+            }
+        }
     }
 }
