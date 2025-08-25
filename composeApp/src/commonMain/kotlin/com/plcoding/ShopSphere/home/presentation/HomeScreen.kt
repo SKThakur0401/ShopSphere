@@ -1,5 +1,6 @@
 package com.plcoding.ShopSphere.home.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,16 +26,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.plcoding.ShopSphere.home.presentation.components.HeroSection
 import com.plcoding.ShopSphere.home.presentation.components.OurCollectionSection
 import com.plcoding.ShopSphere.home.presentation.components.FeaturedCarpetsSection
+import com.plcoding.ShopSphere.home.presentation.components.ARCarpetPreviewSection
+import com.plcoding.ShopSphere.home.presentation.components.CustomerStoriesSection
+import com.plcoding.ShopSphere.home.presentation.components.NewsletterSubscribeSection
+import com.plcoding.ShopSphere.home.presentation.components.FooterSection
 import com.plcoding.ShopSphere.login_signup.presentation.login.AuthState
 import com.plcoding.ShopSphere.login_signup.presentation.login.AuthViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HomeScreenRoot(onLogoutNavigation: () -> Unit, authViewModel: AuthViewModel) {
 
     val authState by authViewModel.state.collectAsStateWithLifecycle()
-
 
     HomeScreen(
         logoutUser = {authViewModel.logoutUser()}
@@ -43,6 +52,7 @@ fun HomeScreenRoot(onLogoutNavigation: () -> Unit, authViewModel: AuthViewModel)
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HomeScreen(logoutUser : () -> Unit){
     Box(
@@ -55,7 +65,9 @@ fun HomeScreen(logoutUser : () -> Unit){
         ) {
 
             item {
-                HeroSection()
+                val windowInfo = LocalWindowInfo.current
+                val screenHeight = with(LocalDensity.current) { windowInfo.containerSize.height.toDp() }
+                Box(modifier = Modifier.height(screenHeight)) { HeroSection(modifier = Modifier.fillMaxSize()) }
             }
 
             item {
@@ -64,6 +76,25 @@ fun HomeScreen(logoutUser : () -> Unit){
 
             item {
                 FeaturedCarpetsSection()
+                Spacer(Modifier.height(30.dp))
+            }
+
+            item {
+                ARCarpetPreviewSection()
+                Spacer(Modifier.height(30.dp))
+            }
+
+            item {
+                CustomerStoriesSection()
+                Spacer(Modifier.height(30.dp).background(Color.White))
+            }
+
+            item {
+                NewsletterSubscribeSection()
+            }
+
+            item {
+                FooterSection()
             }
         }
     }

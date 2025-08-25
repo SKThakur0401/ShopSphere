@@ -20,6 +20,22 @@ object Constants {
 
     const val MY_NOTES = "myNotes"
 
+    object IMG_URL{     // Place these image urls instead of that chair as you see fit
+        const val HERO_SECTION = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/hero_section_carpet.png"
+        const val VINTAGE_CARPET = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/vintage_carpet.jpg"
+        const val ROYAL_PERSIAN_MEDALION = HERO_SECTION
+
+        const val VINTAGE_SILK_KILIM = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/vintage_silk_kilim.png"
+
+        const val PERSIAN_MEDALION_IN_MODERN_LIVING_ROOM = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/Persian_Medallion_in_Modern_Living_Room.png"
+
+        object DP{      // For customer stories, DP of various people
+            const val MICHAEL = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/dp_michael_chen.png"
+            const val SARAH = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/dp_sarah_johnson.png"
+            const val JENIFER = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/Jennifer%20Martinez.png"
+        }
+    }
+
 
 }
 

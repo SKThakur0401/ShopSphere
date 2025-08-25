@@ -37,7 +37,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
-import kotlin.text.format
+
 
 @Composable
 fun FeaturedCarpetsSection(items: List<Product> = provideDummyProducts()): Unit {
@@ -211,7 +211,9 @@ private fun provideDummyProducts(): List<Product> = listOf(
 
 private fun formatPrice(value: Double): String {
     val absValue: Double = kotlin.math.abs(value)
-    return "%.0f".format(absValue).reversed().chunked(3).joinToString(",").reversed()
+    val rounded: Long = kotlin.math.round(absValue).toLong()
+    val digits: String = rounded.toString()
+    return digits.reversed().chunked(3).joinToString(",") { it.reversed() }.reversed()
 }
 
 

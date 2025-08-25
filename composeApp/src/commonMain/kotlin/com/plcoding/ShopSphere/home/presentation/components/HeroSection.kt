@@ -21,15 +21,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 // ✅ Fixed imports - remove duplicate and fix package structure
 // ✅ Correct imports - no package prefix needed
-import org.jetbrains.compose.resources.painterResource
-import cmp_bookpedia.composeapp.generated.resources.Res
-import cmp_bookpedia.composeapp.generated.resources.hero_section_carpet
-
-
+import coil3.compose.AsyncImage
+import com.plcoding.ShopSphere.core.data.Constants
 
 
 @Composable
@@ -42,17 +40,15 @@ fun HeroSection(
     onProfileClick: () -> Unit = {}
 ) {
     Box(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxSize()
     ) {
         // Background carpet image
         // ✅ Try this direct approach first
 
-       Image(
-           painter = painterResource(Res.drawable.hero_section_carpet),
+       AsyncImage(
+           model = Constants.IMG_URL.HERO_SECTION,
            contentDescription = "Carpet background",
-           modifier = Modifier
-               .fillMaxWidth()
-               .height(600.dp),
+           modifier = Modifier.matchParentSize(),
            contentScale = ContentScale.Crop
        )
 
@@ -60,8 +56,7 @@ fun HeroSection(
         // Dark overlay for better text readability
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
+                .matchParentSize()
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
@@ -76,8 +71,7 @@ fun HeroSection(
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(600.dp)
+                .matchParentSize()
         ) {
             // Top header section
             HeroHeader(
