@@ -10,4 +10,40 @@ object Constants {
     const val TOKEN_FOR_PREFS = "This_Token_Is_Used_For_Our_App_Wide_Shared_Pref"
 
     const val AUTH_TOKEN  = "auth_token"
+
+    object TABLE{
+        const val USERS = "users"
+        const val CUSTOMER_STORIES = "customerStories"
+        const val PRODUCTS = "products"
+        const val EXPLORABLES = "explorables"
+    }
+
+    const val MY_NOTES = "myNotes"
+
+    object IMG_URL{     // Place these image urls instead of that chair as you see fit
+        const val HERO_SECTION = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/hero_section_carpet.png"
+        const val VINTAGE_CARPET = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/vintage_carpet.jpg"
+
+        const val VINTAGE_SILK_KILIM = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/vintage_silk_kilim.png"
+
+        const val PERSIAN_MEDALION_IN_MODERN_LIVING_ROOM = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/Persian_Medallion_in_Modern_Living_Room.png"
+
+        const val FAUX_SILK_CARPET = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/faux_silk_carpet.webp"
+        const val ANTIQUE_CARPET = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/antique_look_carpet.jpg"
+        const val RUG_STOCK = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/rug_stock_photo.jpg"
+        const val BEDROOM_CARPET = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/bedroom_carpet.jpeg"
+
+        const val CARPET_DRAWING_HALL = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/carpet_drawing_hall.jpeg"
+
+        const val RUG_FOLDED = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/rug_folded.jpg"
+
+        object DP{      // For customer stories, DP of various people
+            const val MICHAEL = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/dp_michael_chen.png"
+            const val SARAH = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/dp_sarah_johnson.png"
+            const val JENIFER = "https://jntbkxrqyjefnoerkmeu.supabase.co/storage/v1/object/public/PhotosOfCarpets/Jennifer%20Martinez.png"
+        }
+    }
+
+
 }
+

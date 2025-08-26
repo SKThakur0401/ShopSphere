@@ -1,21 +1,30 @@
 package com.plcoding.ShopSphere.core.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+
+// This file contains the "Toast" Which we'll use for our multiplatform project since the native
+// host doesn't work here and don't wanna take efforts of expect/actual for native hosts so created
+// my own :) , similarly I createed "GlobalLoader" a progress bar to show loading process on screens
+// Both of these are added in "App()" in "App.kt" because they'll be overlayed on top of the nav-
+// graph screen which is displayed, so this is displayed on top of the current screen :)
 
 object GlobalToast {
     val state = ToastState()
@@ -32,6 +41,7 @@ class ToastState {
         _message.value = null
     }
 }
+
 
 @Composable
 fun ToastHost(toastState: ToastState = GlobalToast.state) {
@@ -64,3 +74,26 @@ fun ToastHost(toastState: ToastState = GlobalToast.state) {
         }
     }
 }
+
+
+object GlobalLoader {
+    // observable state
+    var isLoading by mutableStateOf(false)
+}
+
+@Composable
+fun LoaderHost() {
+    if (GlobalLoader.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.2f)) // dim background
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
+            )
+        }
+    }
+}
+
